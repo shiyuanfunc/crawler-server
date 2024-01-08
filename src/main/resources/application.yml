@@ -1,0 +1,18 @@
+
+server:
+  port: 20011
+
+spring:
+  redis:
+    host: 47.97.99.80
+    port: 6379
+    password: redispassword
+    lettuce:
+      pool:
+        max-idle: 8
+        max-active: 8
+config:
+  mq:
+    endpoint: 127.0.0.1:40015
+    producer-group: terra
+    consumer-group: terra-consumer
