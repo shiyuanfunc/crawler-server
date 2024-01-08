@@ -8,6 +8,7 @@
 
 package com.shiyuan.crawler.server;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -20,6 +21,8 @@ import java.io.LineNumberReader;
  * @Description
  * @Version
  **/
+
+@Slf4j
 public class ExecShellUtils {
 
     /***
@@ -28,6 +31,7 @@ public class ExecShellUtils {
      */
     public static void execShell(String shellCommand) {
 
+        log.info("ExecShellUtils exec shell command: {}", shellCommand);
         try {
             if (StringUtils.isBlank(shellCommand)) {
                 return;
@@ -44,13 +48,13 @@ public class ExecShellUtils {
             }
             System.out.println("exec over >>>>>>");
         }catch (Exception ex) {
-
+            log.info("execShell error command:{}", shellCommand, ex);
         }
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
-        execShell("/Users/songxiaohui/Documents/dev/workspace/terra/wechant-token/test.sh");
+        execShell("/Users/songxiaohui/Documents/dev/workspace/terra/wechant-token/test.sh song 456");
     }
 
 }
