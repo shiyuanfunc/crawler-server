@@ -38,14 +38,8 @@ public class ExecShellUtils {
             }
             Runtime runtime = Runtime.getRuntime();
             Process process = runtime.exec(new String[]{"/bin/sh", "-c", shellCommand});
-            InputStreamReader ir = new InputStreamReader(process
-                    .getInputStream());
-            LineNumberReader input = new LineNumberReader(ir);
-            String line;
             process.waitFor();
-            while ((line = input.readLine()) != null) {
-                System.out.println(line);
-            }
+
             System.out.println("exec over >>>>>>");
         }catch (Exception ex) {
             log.info("execShell error command:{}", shellCommand, ex);

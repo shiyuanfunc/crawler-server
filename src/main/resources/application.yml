@@ -15,4 +15,4 @@ config:
   mq:
     endpoint: 127.0.0.1:40015
     producer-group: terra
-    consumer-group: terra-consumer
+    consumer-group: terra-crawler-server
