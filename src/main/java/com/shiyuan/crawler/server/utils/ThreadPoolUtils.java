@@ -8,6 +8,8 @@
 
 package com.shiyuan.crawler.server.utils;
 
+import org.apache.rocketmq.shaded.com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -21,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 public class ThreadPoolUtils {
 
     public static final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(4, 4, 30, TimeUnit.SECONDS,
-            new LinkedBlockingQueue<>());
+            new LinkedBlockingQueue<>(), new ThreadFactoryBuilder().setNameFormat("customer-pool-").build());
 
 
     public static void submit(Runnable runnable) {
