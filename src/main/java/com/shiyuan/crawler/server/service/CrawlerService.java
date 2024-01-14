@@ -74,28 +74,34 @@ public class CrawlerService {
     }
 
     private static void downloadAndMergeM3U8Video(String m3u8Url, String outputFileName, String videoNameFileText) {
-
+        List<String> filePaths = new ArrayList<>();
         try {
             String baseUrl = m3u8Url;
             // 获取真是m3u8地址
             String tempUrl = getRealM3u8Url(m3u8Url);
             log.info("getRealM3u8Url 获取真是m3u8地址: {}", tempUrl);
-            if (StringUtils.isBlank(tempUrl)) {
-                m3u8Url = tempUrl;
+            if (StringUtils.isNotBlank(tempUrl)) {
+                m3u8Url = new URL(new URL(baseUrl), tempUrl).toString();
+                URL url = new URL(baseUrl);
+                String realUrl = url.getProtocol() + "://" + url.getHost() + tempUrl;
+                log.info("真实地址: {}, m3u8: {}", realUrl, m3u8Url);
             }
-            m3u8Url = new URL(new URL(baseUrl), m3u8Url).toString();
+
+            log.info("处理后的链接地址: {}", m3u8Url);
 
             // Step 1: Download M3U8 video segments
-            List<String> filePaths = downloadM3U8Video(m3u8Url, videoNameFileText);
-
+            List<String> strings = downloadM3U8Video(m3u8Url, videoNameFileText);
+            if (!CollectionUtils.isEmpty(strings)) {
+                filePaths.addAll(strings);
+            }
             // Step 2: Merge video segments using FFmpeg
             mergeVideoSegments(outputFileName, videoNameFileText);
 
-            // step3 删除文件
-            deleteFile(filePaths);
         } catch (Exception ex) {
             log.info("执行链接异常 {}", m3u8Url, ex);
         }
+        // step3 删除文件
+        deleteFile(filePaths);
     }
 
 
@@ -131,7 +137,7 @@ public class CrawlerService {
             }
             reader.close();
         } catch (Exception ex) {
-
+            log.info("下载m3u8 异常", ex);
         }
         return filePaths;
     }
