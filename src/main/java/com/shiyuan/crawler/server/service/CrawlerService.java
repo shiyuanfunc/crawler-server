@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CrawlerService {
     private final RedisTemplate<String, Object> redisTemplate;
 
-    private static final String base_path = "/data/dev/downloadspace/";
+    private static final String base_path = "/data/dev/downloadspace/temp/";
     private static final String outputFileNameTemplate = "%s.mp4";
     private static final String videoNameFileTxt = "%s.txt";
     private static AtomicInteger count = new AtomicInteger();
@@ -101,7 +101,7 @@ public class CrawlerService {
             log.info("执行链接异常 {}", m3u8Url, ex);
         }
         // step3 删除文件
-        deleteFile(filePaths);
+        //deleteFile(filePaths);
     }
 
 
@@ -131,8 +131,8 @@ public class CrawlerService {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.endsWith(".ts")) {
-                    String filePath = downloadVideoSegment(line, m3u8Url, videoNameFileText);
-                    filePaths.add(base_path + filePath);
+                    String fileName = downloadVideoSegment(line, m3u8Url, videoNameFileText);
+                    filePaths.add(base_path + fileName);
                 }
             }
             reader.close();
