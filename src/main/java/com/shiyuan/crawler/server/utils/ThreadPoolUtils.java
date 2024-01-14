@@ -22,11 +22,11 @@ import java.util.concurrent.TimeUnit;
  **/
 public class ThreadPoolUtils {
 
-    public static final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(4, 4, 30, TimeUnit.SECONDS,
-            new LinkedBlockingQueue<>(), new ThreadFactoryBuilder().setNameFormat("customer-pool-").build());
+    private static final ThreadPoolExecutor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(4, 4, 30, TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>(), new ThreadFactoryBuilder().setNameFormat("CrawlerServer_POOL_%d").build());
 
 
     public static void submit(Runnable runnable) {
-        threadPoolExecutor.submit(runnable);
+        THREAD_POOL_EXECUTOR.submit(runnable);
     }
 }
