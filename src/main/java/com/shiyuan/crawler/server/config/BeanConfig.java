@@ -30,6 +30,7 @@ public class BeanConfig {
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         GenericFastJsonRedisSerializer genericFastJsonRedisSerializer = new GenericFastJsonRedisSerializer();
         redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(genericFastJsonRedisSerializer);
         redisTemplate.setHashValueSerializer(genericFastJsonRedisSerializer);
         redisTemplate.afterPropertiesSet();
