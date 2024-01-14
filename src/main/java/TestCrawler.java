@@ -49,7 +49,14 @@ public class TestCrawler {
         String outputFileName = "output.mp4";
         String videoListTxt = "video_list2.txt";
 
-        downloadAndMergeM3U8Video(m3u8Url, outputFileName, videoListTxt);
+        String videoKey = UUID.randomUUID().toString().replaceAll("-", "");
+
+        File file = new File(base_path + videoKey + "/" + videoKey + ".txt");
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+
+//        downloadAndMergeM3U8Video(m3u8Url, outputFileName, videoListTxt);
 
     }
 

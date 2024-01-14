@@ -44,8 +44,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CrawlerService {
     private final RedisTemplate<String, Object> redisTemplate;
 
-    private static final String base_path = "/data/dev/downloadspace/temp/";
-    private static final String outputFileNameTemplate = "%s.mp4";
+    private static final String workspace_path = "/data/soft/ffmpeg/workspace/";
+    private static final String video_path = "/data/dev/downloadspace/";
+    private static final String outputFileNameTemplate = video_path + "%s.mp4";
     private static final String videoNameFileTxt = "%s.txt";
     private static AtomicInteger count = new AtomicInteger();
     private static final String REGEX = "\\p{P}";
@@ -73,7 +74,9 @@ public class CrawlerService {
         });
     }
 
-    private static void downloadAndMergeM3U8Video(String m3u8Url, String outputFileName, String videoNameFileText) {
+    private static void downloadAndMergeM3U8Video(String m3u8Url, String outputFileName, String fullSegmentVideoNameList) {
+
+        log.info("videoUrl: {}, videoName:{}", m3u8Url, outputFileName);
         List<String> filePaths = new ArrayList<>();
         try {
             String baseUrl = m3u8Url;
@@ -90,18 +93,18 @@ public class CrawlerService {
             log.info("处理后的链接地址: {}", m3u8Url);
 
             // Step 1: Download M3U8 video segments
-            List<String> strings = downloadM3U8Video(m3u8Url, videoNameFileText);
+            List<String> strings = downloadM3U8Video(m3u8Url, fullSegmentVideoNameList);
             if (!CollectionUtils.isEmpty(strings)) {
                 filePaths.addAll(strings);
             }
             // Step 2: Merge video segments using FFmpeg
-            mergeVideoSegments(outputFileName, videoNameFileText);
+            mergeVideoSegments(outputFileName, fullSegmentVideoNameList);
 
         } catch (Exception ex) {
             log.info("执行链接异常 {}", m3u8Url, ex);
         }
         // step3 删除文件
-        //deleteFile(filePaths);
+        deleteFile(filePaths);
     }
 
 
@@ -120,7 +123,7 @@ public class CrawlerService {
         return m3u8Url;
     }
 
-    private static List<String> downloadM3U8Video(String m3u8Url, String videoNameFileText) {
+    private static List<String> downloadM3U8Video(String m3u8Url, String fullSegmentVideoNameList) {
 
         List<String> filePaths = new ArrayList<>();
         try {
@@ -131,8 +134,8 @@ public class CrawlerService {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.endsWith(".ts")) {
-                    String fileName = downloadVideoSegment(line, m3u8Url, videoNameFileText);
-                    filePaths.add(base_path + fileName);
+                    String fileName = downloadVideoSegment(line, m3u8Url, fullSegmentVideoNameList);
+                    filePaths.add(workspace_path + fileName);
                 }
             }
             reader.close();
@@ -142,14 +145,14 @@ public class CrawlerService {
         return filePaths;
     }
 
-    private static String downloadVideoSegment(String segmentUrl, String m3u8Url, String videoNameFileText) throws IOException {
+    private static String downloadVideoSegment(String segmentUrl, String m3u8Url, String fullSegmentVideoNameList) throws IOException {
         log.info("下载片段序号: " + count.addAndGet(1));
         URL url = new URL(new URL(m3u8Url), segmentUrl);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         InputStream in = conn.getInputStream();
-        String fileName = StringUtils.replace(segmentUrl, "/", "_");
-        File file = new File(base_path + fileName);
+        String segmentFileName = StringUtils.replace(segmentUrl, "/", "_");
+        File file = new File(workspace_path + segmentFileName);
         if (!file.exists()) {
             file.createNewFile();
         }
@@ -162,21 +165,21 @@ public class CrawlerService {
         out.close();
         in.close();
 
-        writeVideoNameText(fileName, videoNameFileText);
-        return fileName;
+        writeVideoNameText(segmentFileName, fullSegmentVideoNameList);
+        return segmentFileName;
     }
 
-    private static void mergeVideoSegments(String outputFileName, String segmentNameFile) throws IOException, InterruptedException {
-        ProcessBuilder processBuilder = new ProcessBuilder("ffmpeg", "-f", "concat", "-safe", "0", "-i", segmentNameFile, "-c", "copy", outputFileName);
-        processBuilder.directory(new File(base_path));
+    private static void mergeVideoSegments(String outputFileName, String fullSegmentVideoNameFile) throws IOException, InterruptedException {
+        ProcessBuilder processBuilder = new ProcessBuilder("ffmpeg", "-f", "concat", "-safe", "0", "-i", fullSegmentVideoNameFile, "-c", "copy", outputFileName);
+        processBuilder.directory(new File(workspace_path));
         Process process = processBuilder.start();
         process.waitFor(3600, TimeUnit.SECONDS);
     }
 
-    private static void writeVideoNameText(String videoNameText, String videoListTxt) {
+    private static void writeVideoNameText(String segmentFileName, String fullSegmentVideoNameList) {
 
         try {
-            File file = new File(base_path + videoListTxt);
+            File file = new File(workspace_path + fullSegmentVideoNameList);
             FileOutputStream fos = null;
             if (!file.exists()) {
                 file.createNewFile();
@@ -189,7 +192,7 @@ public class CrawlerService {
             OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
 
             String fileName = "file '%s'";
-            String tempName = base_path + videoNameText;
+            String tempName = workspace_path + segmentFileName;
             osw.write(String.format(fileName, tempName));
             osw.write("\n");
             //写入完成关闭流
