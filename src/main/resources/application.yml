@@ -9,9 +9,10 @@ spring:
     password: redispassword
     jedis:
       pool:
+        max-idle: 6
         max-active: 8
-        min-idle: 8
-        enabled: true
+        max-wait: 100
+        min-idle: 4
 config:
   mq:
     endpoint: 127.0.0.1:40015
