@@ -7,10 +7,11 @@ spring:
     host: 47.97.99.80
     port: 6379
     password: redispassword
-    lettuce:
+    jedis:
       pool:
-        max-idle: 8
         max-active: 8
+        min-idle: 8
+        enabled: true
 config:
   mq:
     endpoint: 127.0.0.1:40015
