@@ -76,6 +76,7 @@ public class CrawlerService {
 
     private static void downloadAndMergeM3U8Video(String m3u8Url, String outputFileName, String fullSegmentVideoNameList) {
 
+
         log.info("videoUrl: {}, videoName:{}", m3u8Url, outputFileName);
         List<String> filePaths = new ArrayList<>();
         try {
