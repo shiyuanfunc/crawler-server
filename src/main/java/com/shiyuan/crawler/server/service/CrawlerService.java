@@ -69,14 +69,15 @@ public class CrawlerService {
         String videoUrlKey = videoInfo.getVideoUrlKey();
 
         ThreadPoolUtils.submit(() -> {
-            downloadAndMergeM3U8Video(videoUrl, String.format(outputFileNameTemplate, videoName), String.format(videoNameFileTxt, videoUrlKey));
+            downloadAndMergeM3U8Video(videoUrl, videoName, String.format(videoNameFileTxt, videoUrlKey));
         });
     }
 
-    private static void downloadAndMergeM3U8Video(String m3u8Url, String outputFileName,
+    private static void downloadAndMergeM3U8Video(String m3u8Url, String videoName,
                                                   String fullSegmentVideoNameList) {
 
-        String workspacePath = createWorkspaceDir(outputFileName);
+        String workspacePath = createWorkspaceDir(videoName);
+        String outputFileName = String.format(outputFileNameTemplate, videoName);
 
         log.info("videoUrl: {}, videoName:{}", m3u8Url, outputFileName);
         List<String> filePaths = new ArrayList<>();
@@ -107,6 +108,8 @@ public class CrawlerService {
         }
         // step3 删除文件
         deleteFile(filePaths);
+
+        log.info("{} 处理完成.", videoName);
     }
 
 
