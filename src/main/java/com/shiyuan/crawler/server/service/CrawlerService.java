@@ -73,8 +73,10 @@ public class CrawlerService {
         });
     }
 
-    private static void downloadAndMergeM3U8Video(String m3u8Url, String outputFileName, String fullSegmentVideoNameList) {
+    private static void downloadAndMergeM3U8Video(String m3u8Url, String outputFileName,
+                                                  String fullSegmentVideoNameList) {
 
+        String workspacePath = createWorkspaceDir(outputFileName);
 
         log.info("videoUrl: {}, videoName:{}", m3u8Url, outputFileName);
         List<String> filePaths = new ArrayList<>();
@@ -93,7 +95,7 @@ public class CrawlerService {
             log.info("处理后的链接地址: {}", m3u8Url);
 
             // Step 1: Download M3U8 video segments
-            List<String> strings = downloadM3U8Video(m3u8Url, fullSegmentVideoNameList);
+            List<String> strings = downloadM3U8Video(m3u8Url, fullSegmentVideoNameList, workspacePath);
             if (!CollectionUtils.isEmpty(strings)) {
                 filePaths.addAll(strings);
             }
@@ -123,7 +125,7 @@ public class CrawlerService {
         return m3u8Url;
     }
 
-    private static List<String> downloadM3U8Video(String m3u8Url, String fullSegmentVideoNameList) {
+    private static List<String> downloadM3U8Video(String m3u8Url, String fullSegmentVideoNameList, String workspacePath) {
 
         List<String> filePaths = new ArrayList<>();
         try {
@@ -134,9 +136,9 @@ public class CrawlerService {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.endsWith(".ts")) {
-                    String fileName = downloadVideoSegment(line, m3u8Url, fullSegmentVideoNameList);
+                    String fileName = downloadVideoSegment(line, m3u8Url, fullSegmentVideoNameList, workspacePath);
                     if (StringUtils.isNotBlank(fileName)) {
-                        filePaths.add(workspace_path + fileName);
+                        filePaths.add(workspacePath + fileName);
                     }
                 }
             }
@@ -147,7 +149,7 @@ public class CrawlerService {
         return filePaths;
     }
 
-    private static String downloadVideoSegment(String segmentUrl, String m3u8Url, String fullSegmentVideoNameList) {
+    private static String downloadVideoSegment(String segmentUrl, String m3u8Url, String fullSegmentVideoNameList, String workspacePath) {
 
         try {
             log.info("下载片段序号: " + count.addAndGet(1));
@@ -156,7 +158,7 @@ public class CrawlerService {
             conn.setRequestMethod("GET");
             InputStream in = conn.getInputStream();
             String segmentFileName = StringUtils.replace(segmentUrl, "/", "_");
-            File file = new File(workspace_path + segmentFileName);
+            File file = new File(workspacePath + segmentFileName);
             if (!file.exists()) {
                 file.createNewFile();
             }
@@ -169,11 +171,11 @@ public class CrawlerService {
             out.close();
             in.close();
 
-            writeVideoNameText(segmentFileName, fullSegmentVideoNameList);
+            writeVideoNameText(segmentFileName, fullSegmentVideoNameList, workspacePath);
             return segmentFileName;
         }catch (Exception ex) {
             log.info("获取视频资源片段异常 {}", segmentUrl, ex);
-            ThreadPoolUtils.submitGetSegmentTask(() -> downloadVideoSegment(segmentUrl, m3u8Url, fullSegmentVideoNameList));
+            ThreadPoolUtils.submitGetSegmentTask(() -> downloadVideoSegment(segmentUrl, m3u8Url, fullSegmentVideoNameList, workspacePath));
         }
         return null;
     }
@@ -185,10 +187,10 @@ public class CrawlerService {
         process.waitFor(3600, TimeUnit.SECONDS);
     }
 
-    private static void writeVideoNameText(String segmentFileName, String fullSegmentVideoNameList) {
+    private static void writeVideoNameText(String segmentFileName, String fullSegmentVideoNameList, String workspacePath) {
 
         try {
-            File file = new File(workspace_path + fullSegmentVideoNameList);
+            File file = new File(workspacePath + fullSegmentVideoNameList);
             FileOutputStream fos = null;
             if (!file.exists()) {
                 file.createNewFile();
@@ -201,7 +203,7 @@ public class CrawlerService {
             OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
 
             String fileName = "file '%s'";
-            String tempName = workspace_path + segmentFileName;
+            String tempName = workspacePath + segmentFileName;
             osw.write(String.format(fileName, tempName));
             osw.write("\n");
             //写入完成关闭流
@@ -226,5 +228,19 @@ public class CrawlerService {
                 log.info("删除文件 {}", fileNameList, ex);
             }
         }
+    }
+
+    private static String createWorkspaceDir(String fileName) {
+
+        if (StringUtils.isBlank(fileName)) {
+            return workspace_path;
+        }
+        String newPath = workspace_path + fileName;
+        File file = new File(newPath);
+        if (!file.isDirectory()) {
+            boolean mkdirs = file.mkdirs();
+            log.info("创建文件夹 {}, 结果:{}", newPath, mkdirs);
+        }
+        return newPath + "/";
     }
 }
