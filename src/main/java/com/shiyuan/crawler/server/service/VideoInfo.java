@@ -8,10 +8,13 @@
 
 package com.shiyuan.crawler.server.service;
 
+import com.shiyuan.crawler.server.utils.MD5Utils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @Author MUSI
@@ -71,6 +74,9 @@ public class VideoInfo implements Serializable {
     }
 
     public String getVideoUrlKey() {
+        if (StringUtils.isNotBlank(this.videoUrl)) {
+            return MD5Utils.encodeHexString(this.videoImage.getBytes(StandardCharsets.UTF_8));
+        }
         return videoUrlKey;
     }
 
