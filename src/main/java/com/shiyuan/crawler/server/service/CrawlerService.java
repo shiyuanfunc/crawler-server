@@ -49,7 +49,6 @@ public class CrawlerService {
     private static final String outputFileNameTemplate = video_path + "%s.mp4";
     private static final String videoNameFileTxt = "%s.txt";
     private static AtomicInteger count = new AtomicInteger();
-    private static final String REGEX = "\\p{P}";
 
     /**
      * @param videoInfo
@@ -66,7 +65,7 @@ public class CrawlerService {
         }
 
         String videoUrl = videoInfo.getVideoUrl();
-        String videoName = videoInfo.getVideoName().replace(REGEX, "").replaceAll(" ", "");
+        String videoName = videoInfo.getVideoName().replaceAll("[^\\u4e00-\\u9fa5]", "").replaceAll(" ", "");
         String videoUrlKey = videoInfo.getVideoUrlKey();
 
         ThreadPoolUtils.submit(() -> {
