@@ -136,7 +136,9 @@ public class CrawlerService {
             while ((line = reader.readLine()) != null) {
                 if (line.endsWith(".ts")) {
                     String fileName = downloadVideoSegment(line, m3u8Url, fullSegmentVideoNameList);
-                    filePaths.add(workspace_path + fileName);
+                    if (StringUtils.isNotBlank(fileName)) {
+                        filePaths.add(workspace_path + fileName);
+                    }
                 }
             }
             reader.close();
@@ -146,28 +148,35 @@ public class CrawlerService {
         return filePaths;
     }
 
-    private static String downloadVideoSegment(String segmentUrl, String m3u8Url, String fullSegmentVideoNameList) throws IOException {
-        log.info("下载片段序号: " + count.addAndGet(1));
-        URL url = new URL(new URL(m3u8Url), segmentUrl);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("GET");
-        InputStream in = conn.getInputStream();
-        String segmentFileName = StringUtils.replace(segmentUrl, "/", "_");
-        File file = new File(workspace_path + segmentFileName);
-        if (!file.exists()) {
-            file.createNewFile();
-        }
-        FileOutputStream out = new FileOutputStream(file);
-        byte[] buffer = new byte[4096];
-        int bytesRead;
-        while ((bytesRead = in.read(buffer)) != -1) {
-            out.write(buffer, 0, bytesRead);
-        }
-        out.close();
-        in.close();
+    private static String downloadVideoSegment(String segmentUrl, String m3u8Url, String fullSegmentVideoNameList) {
 
-        writeVideoNameText(segmentFileName, fullSegmentVideoNameList);
-        return segmentFileName;
+        try {
+            log.info("下载片段序号: " + count.addAndGet(1));
+            URL url = new URL(new URL(m3u8Url), segmentUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            InputStream in = conn.getInputStream();
+            String segmentFileName = StringUtils.replace(segmentUrl, "/", "_");
+            File file = new File(workspace_path + segmentFileName);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            FileOutputStream out = new FileOutputStream(file);
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = in.read(buffer)) != -1) {
+                out.write(buffer, 0, bytesRead);
+            }
+            out.close();
+            in.close();
+
+            writeVideoNameText(segmentFileName, fullSegmentVideoNameList);
+            return segmentFileName;
+        }catch (Exception ex) {
+            log.info("获取视频资源片段异常 {}", segmentUrl, ex);
+            ThreadPoolUtils.submitGetSegmentTask(() -> downloadVideoSegment(segmentUrl, m3u8Url, fullSegmentVideoNameList));
+        }
+        return null;
     }
 
     private static void mergeVideoSegments(String outputFileName, String fullSegmentVideoNameFile) throws IOException, InterruptedException {
