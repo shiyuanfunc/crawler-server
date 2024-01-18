@@ -40,4 +40,13 @@ public class ThreadPoolUtils {
         log.info("提交任务 submitGetSegmentTask ");
         THREAD_POOL_ASYNC_EXECUTOR.submit(runnable);
     }
+
+    public static void printJosQueue() {
+        int size = THREAD_POOL_EXECUTOR.getQueue().size();
+        log.info("THREAD_POOL_EXECUTOR 下载资源线程池队列任务: {}", size);
+
+        int count = THREAD_POOL_ASYNC_EXECUTOR.getQueue().size();
+        log.info("THREAD_POOL_ASYNC_EXECUTOR 下载资源异常线程池队列任务: {}", count);
+
+    }
 }

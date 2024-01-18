@@ -79,7 +79,7 @@ public class CrawlerService {
     private static boolean downloadAndMergeM3U8Video(String m3u8Url, String videoName,
                                                   String fullSegmentVideoNameList) {
 
-        String workspacePath = createWorkspaceDir(videoName);
+        String workspacePath = createWorkspaceDir(fullSegmentVideoNameList);
         String outputFileName = String.format(outputFileNameTemplate, videoName);
 
         log.info("videoUrl: {}, videoName:{}", m3u8Url, outputFileName);
@@ -109,6 +109,7 @@ public class CrawlerService {
         } catch (Exception ex) {
             log.info("执行链接异常 {}", m3u8Url, ex);
             deleteFile(filePaths);
+            deleteDir(fullSegmentVideoNameList);
             return false;
         }
         // step3 删除文件
@@ -239,17 +240,29 @@ public class CrawlerService {
         }
     }
 
-    private static String createWorkspaceDir(String fileName) {
+    private static String createWorkspaceDir(String dirName) {
 
-        if (StringUtils.isBlank(fileName)) {
+        if (StringUtils.isBlank(dirName)) {
             return workspace_path;
         }
-        String newPath = workspace_path + fileName;
+        String newPath = workspace_path + dirName;
         File file = new File(newPath);
         if (!file.isDirectory()) {
             boolean mkdirs = file.mkdirs();
             log.info("创建文件夹 {}, 结果:{}", newPath, mkdirs);
         }
         return newPath + "/";
+    }
+
+    private static void deleteDir(String dirName) {
+        if (StringUtils.isBlank(dirName)) {
+            return;
+        }
+        String newPath = workspace_path + dirName;
+        File file = new File(newPath);
+        if (file.isDirectory()) {
+            boolean delete = file.delete();
+            log.info("删除文件夹 {}, {}", newPath, delete);
+        }
     }
 }
