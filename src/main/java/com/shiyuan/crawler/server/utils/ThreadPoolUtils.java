@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class ThreadPoolUtils {
 
-    private static final ThreadPoolExecutor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(4, 4, 30, TimeUnit.SECONDS,
+    private static final ThreadPoolExecutor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(8, 8, 30, TimeUnit.SECONDS,
             new LinkedBlockingQueue<>(), new ThreadFactoryBuilder().setNameFormat("CrawlerServer_POOL_%d").build());
 
     private static final ThreadPoolExecutor THREAD_POOL_ASYNC_EXECUTOR = new ThreadPoolExecutor(8, 8, 30, TimeUnit.SECONDS,

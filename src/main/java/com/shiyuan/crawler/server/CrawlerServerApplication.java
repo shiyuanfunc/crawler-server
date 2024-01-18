@@ -14,7 +14,7 @@ public class CrawlerServerApplication {
         SpringApplication.run(CrawlerServerApplication.class, args);
     }
 
-    @Scheduled(cron = "* * * * * *")
+    @Scheduled(cron = "0/10 * * * * ?")
     public void task(){
         ThreadPoolUtils.printJosQueue();
     }
