@@ -9,6 +9,7 @@
 package com.shiyuan.crawler.server.service;
 
 import com.alibaba.fastjson.JSON;
+import com.shiyuan.crawler.server.utils.ExecShellUtils;
 import com.shiyuan.crawler.server.utils.ThreadPoolUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -69,10 +70,11 @@ public class CrawlerService {
         String videoUrlKey = videoInfo.getVideoUrlKey();
 
         ThreadPoolUtils.submit(() -> {
-            boolean temp = downloadAndMergeM3U8Video(videoUrl, videoName, videoUrlKey);
-            if (!temp) {
-                redisTemplate.opsForHash().delete("video_repeat_key", videoInfo.getVideoUrlKey());
-            }
+            ExecShellUtils.execShell(videoUrl, videoName);
+//            boolean temp = downloadAndMergeM3U8Video(videoUrl, videoName, videoUrlKey);
+//            if (!temp) {
+//                redisTemplate.opsForHash().delete("video_repeat_key", videoInfo.getVideoUrlKey());
+//            }
         });
     }
 
