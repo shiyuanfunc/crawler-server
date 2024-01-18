@@ -11,7 +11,10 @@ package com.shiyuan.crawler.server.utils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -35,6 +38,15 @@ public class ExecShellUtils {
             ProcessBuilder processBuilder = new ProcessBuilder("/bin/bash", script_path, videoUrl, videoName);
             processBuilder.directory(new File(workspace_path));
             Process process = processBuilder.start();
+            // 获取进程的输出流
+            InputStream inputStream = process.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            String line;
+
+            // 读取输出
+            while ((line = reader.readLine()) != null) {
+                log.info("[execShell] {}", line);
+            }
             process.waitFor(3600, TimeUnit.SECONDS);
         } catch (Exception ex) {
             log.info("执行shell脚本异常", ex);
