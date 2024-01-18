@@ -66,7 +66,7 @@ public class CrawlerService {
         }
 
         String videoUrl = videoInfo.getVideoUrl();
-        String videoName = videoInfo.getVideoName().replaceAll("[^\\u4e00-\\u9fa5]", "").replaceAll(" ", "");
+        String videoName = videoInfo.getVideoName().replaceAll("[^\\u4e00-\\u9fa5\\d]", "").replaceAll(" ", "");
         String videoUrlKey = videoInfo.getVideoUrlKey();
 
         ThreadPoolUtils.submit(() -> {
