@@ -47,7 +47,8 @@ public class ExecShellUtils {
             while ((line = reader.readLine()) != null) {
                 log.info("[execShell] {}", line);
             }
-            process.waitFor(3600, TimeUnit.SECONDS);
+            process.waitFor();
+//            process.waitFor(3600, TimeUnit.SECONDS);
         } catch (Exception ex) {
             log.info("执行shell脚本异常", ex);
         }
