@@ -15,7 +15,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.concurrent.TimeUnit;
+import java.util.UUID;
 
 /**
  * @Author MUSI
@@ -33,6 +33,11 @@ public class ExecShellUtils {
         log.info("exec shell {}, {}", videoUrl, videoName);
         if (StringUtils.isAnyBlank(videoUrl, videoName)) {
             return;
+        }
+        boolean fileExist = checkFileExist(videoName);
+        log.info("当前文件是否存在：{}", fileExist);
+        if (fileExist) {
+            videoName = videoName + UUID.randomUUID().toString().replaceAll("-", "");
         }
         try {
             ProcessBuilder processBuilder = new ProcessBuilder("/bin/bash", script_path, videoUrl, videoName);
@@ -71,10 +76,19 @@ public class ExecShellUtils {
             }).start();
 
             process.waitFor();
-//            process.waitFor(3600, TimeUnit.SECONDS);
             log.info("execShell 执行完成 {}, {}", videoUrl, videoName);
         } catch (Exception ex) {
             log.info("执行shell脚本异常", ex);
         }
+    }
+
+    private static boolean checkFileExist(String videoName) {
+        if (StringUtils.isBlank(videoName)) {
+            return false;
+        }
+        String workspace = "/data/dev/downloadspace/%s.mp4";
+        String filePath = String.format(workspace, videoName);
+        File file = new File(filePath);
+        return file.exists();
     }
 }
