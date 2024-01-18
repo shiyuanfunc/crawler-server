@@ -37,7 +37,8 @@ public class ExecShellUtils {
         boolean fileExist = checkFileExist(videoName);
         log.info("当前文件是否存在：{}", fileExist);
         if (fileExist) {
-            videoName = videoName + UUID.randomUUID().toString().replaceAll("-", "");
+            log.info("资源已经存在， videoName: {}", videoName);
+            return;
         }
         try {
             ProcessBuilder processBuilder = new ProcessBuilder("/bin/bash", script_path, videoUrl, videoName);
