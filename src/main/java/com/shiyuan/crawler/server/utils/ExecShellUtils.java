@@ -38,8 +38,40 @@ public class ExecShellUtils {
             ProcessBuilder processBuilder = new ProcessBuilder("/bin/bash", script_path, videoUrl, videoName);
             processBuilder.directory(new File(workspace_path));
             Process process = processBuilder.start();
+
+            // 获取进程的输出流和错误流
+            InputStream inputStream = process.getInputStream();
+            InputStream errorStream = process.getErrorStream();
+
+
+            new Thread(() -> {
+                try {
+                    // 读取输出流
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        log.info("execShell 标准输出流 {}", line);
+                    }
+                }catch (Exception ex) {
+                    log.error("execShell", ex);
+                }
+            }).start();
+
+            new Thread(() -> {
+                try {
+                    // 读取错误流
+                    BufferedReader errorReader = new BufferedReader(new InputStreamReader(errorStream));
+                    String errorLine;
+                    while ((errorLine = errorReader.readLine()) != null) {
+                        log.info("execShell Error: {}", errorLine);
+                    }
+                }catch (Exception ex) {
+                    log.error("execShell", ex);
+                }
+            }).start();
+
             process.waitFor();
-            process.waitFor(3600, TimeUnit.SECONDS);
+//            process.waitFor(3600, TimeUnit.SECONDS);
             log.info("execShell 执行完成 {}, {}", videoUrl, videoName);
         } catch (Exception ex) {
             log.info("执行shell脚本异常", ex);
