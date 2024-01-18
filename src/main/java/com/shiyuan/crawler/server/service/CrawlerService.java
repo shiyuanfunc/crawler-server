@@ -69,7 +69,7 @@ public class CrawlerService {
         String videoUrlKey = videoInfo.getVideoUrlKey();
 
         ThreadPoolUtils.submit(() -> {
-            boolean temp = downloadAndMergeM3U8Video(videoUrl, videoName, String.format(videoNameFileTxt, videoUrlKey));
+            boolean temp = downloadAndMergeM3U8Video(videoUrl, videoName, videoUrlKey);
             if (!temp) {
                 redisTemplate.opsForHash().delete("video_repeat_key", videoInfo.getVideoUrlKey());
             }
@@ -77,10 +77,11 @@ public class CrawlerService {
     }
 
     private static boolean downloadAndMergeM3U8Video(String m3u8Url, String videoName,
-                                                  String fullSegmentVideoNameList) {
+                                                  String videoKey) {
 
-        String workspacePath = createWorkspaceDir(fullSegmentVideoNameList);
+        String workspacePath = createWorkspaceDir(videoKey);
         String outputFileName = String.format(outputFileNameTemplate, videoName);
+        String fullSegmentVideoNameList = String.format(videoNameFileTxt, videoKey);
 
         log.info("videoUrl: {}, videoName:{}", m3u8Url, outputFileName);
         List<String> filePaths = new ArrayList<>();
@@ -109,7 +110,7 @@ public class CrawlerService {
         } catch (Exception ex) {
             log.info("执行链接异常 {}", m3u8Url, ex);
             deleteFile(filePaths);
-            deleteDir(fullSegmentVideoNameList);
+            deleteDir(videoKey);
             return false;
         }
         // step3 删除文件
