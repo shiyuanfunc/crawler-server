@@ -80,6 +80,7 @@ public class ExecShellUtils {
             log.info("execShell 执行完成 {}, {}", videoUrl, videoName);
         } catch (Exception ex) {
             log.info("执行shell脚本异常", ex);
+            throw new RuntimeException("exec shell error");
         }
     }
 

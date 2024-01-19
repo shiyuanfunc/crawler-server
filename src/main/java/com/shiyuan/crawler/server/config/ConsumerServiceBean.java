@@ -77,7 +77,7 @@ public class ConsumerServiceBean implements InitializingBean, DisposableBean {
             consumer = CLIENT_SERVICE_PROVIDER.newPushConsumerBuilder()
                     .setConsumerGroup(config.getConsumerGroup())
                     .setClientConfiguration(configuration)
-                    .setMaxCacheMessageCount(100)
+                    .setMaxCacheMessageCount(20)
                     .setConsumptionThreadCount(8)
                     .setSubscriptionExpressions(subScript)
                     .setMessageListener(ConsumerListener::apply)
