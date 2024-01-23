@@ -77,7 +77,9 @@ public class ConsumerServiceBean implements InitializingBean, DisposableBean {
             consumer = CLIENT_SERVICE_PROVIDER.newPushConsumerBuilder()
                     .setConsumerGroup(config.getConsumerGroup())
                     .setClientConfiguration(configuration)
+                    // 缓存的最多消息数量，如果当前线程池缓存数量大于20，则下次拉取消息会被暂停
                     .setMaxCacheMessageCount(20)
+                    // 并发处理的线程数
                     .setConsumptionThreadCount(8)
                     .setSubscriptionExpressions(subScript)
                     .setMessageListener(ConsumerListener::apply)

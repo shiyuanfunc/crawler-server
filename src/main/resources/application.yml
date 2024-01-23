@@ -16,5 +16,5 @@ spring:
 config:
   mq:
     endpoint: 127.0.0.1:40015
-    producer-group: terra
+    producer-group: terra-crawler-server
     consumer-group: terra-crawler-server

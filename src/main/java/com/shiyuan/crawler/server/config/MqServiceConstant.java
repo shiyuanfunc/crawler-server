@@ -27,7 +27,14 @@ public class MqServiceConstant {
     @Getter
     public enum MqTopicEnum {
 
-        CRAWLER_VIDEO_INFO("crawler_video_info", null, "获取视频信息")
+        /**
+         * 视频下载
+         */
+        CRAWLER_VIDEO_INFO("crawler_video_info", null, "获取视频信息"),
+        /**
+         * 用户信息
+         */
+        TG_USER_INFO("tg_user_info", null, "TG用户信息"),
         ;
 
         MqTopicEnum(String topic, String tag, String desc) {
