@@ -56,6 +56,7 @@ public class ConsumerServiceBean implements InitializingBean, DisposableBean {
     public void destroy() throws Exception {
         if (consumer != null) {
             consumer.close();
+            consumer = null;
         }
     }
 
@@ -63,6 +64,10 @@ public class ConsumerServiceBean implements InitializingBean, DisposableBean {
     public void afterPropertiesSet() throws Exception {
         log.info("消费者初始化 >>>>>> {}", JSON.toJSONString(config));
         if (config == null || StringUtils.isBlank(config.getEndpoint())) {
+            return;
+        }
+        if (consumer != null) {
+            log.info("存在consumer实例 {}", consumer);
             return;
         }
         ClientConfiguration configuration = ClientConfiguration.newBuilder()
