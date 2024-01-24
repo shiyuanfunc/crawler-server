@@ -38,4 +38,15 @@ public class AdminController {
         }
         return BaseResponse.success();
     }
+
+    @RequestMapping(path = "/start")
+    private BaseResponse<?> startConsumer() {
+
+        try {
+            consumerServiceBean.afterPropertiesSet();
+        }catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return BaseResponse.success();
+    }
 }
